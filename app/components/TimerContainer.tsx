@@ -45,6 +45,9 @@ const TimerContainer = ({ id, name, whenOpen, timers = [], setTimers, changeName
 	const [containerRepetition, setContainerRepetition] = useState<number>(1);
 	const [resetCounter, setResetCounter] = useState<number>(0);
 
+	//Stop the timers and have the user press the start button again to continue
+	const [pomodoroMode, setPomodoroMode] = useState<boolean>(false);
+
 	const addTimer = () => {
 		let timeToAdd = 60 * minutesToAdd + secondsToAdd
 
@@ -56,9 +59,18 @@ const TimerContainer = ({ id, name, whenOpen, timers = [], setTimers, changeName
 
 
 	// Given to a Timer component so that we know whether a timer has finished or not
-	const timerComplete = () => {
-		setCurrentTimerIndex(lastActiveTimer + 1)
-		setLastActiveTimer(lastActiveTimer + 1)
+	const timerComplete = (repeat: boolean) => { //repeat boolean to check if the timer still has remaining repetitions
+		if (pomodoroMode) {
+			setIsPlaying(false)
+			setCurrentTimerIndex(-1)
+			if (!repeat) setLastActiveTimer(lastActiveTimer + 1)	
+			
+		}
+		else {
+			setLastActiveTimer(lastActiveTimer + 1)	
+			setCurrentTimerIndex(lastActiveTimer + 1)
+		}
+		
 
 		//If the timer_container has reached the end and needs to repeat
 		if (currentTimerIndex >= timers.length - 1 && containerRepetition > 1) {
@@ -134,13 +146,15 @@ const TimerContainer = ({ id, name, whenOpen, timers = [], setTimers, changeName
 						id={time.id}
 						time={time.duration}
 						isActive={index == currentTimerIndex}
+						lastActive={index == lastActiveTimer}
 						onComplete={timerComplete}
 						name={time.name}
 						repetitions={time.repetitions}
 						resetCounter={resetCounter}
+						pomodoroMode={pomodoroMode}
 					/>
 					{isPlaying || !editing ? null :
-						<button onClick={() => {
+						<button style={{backgroundColor: 'red'}} onClick={() => {
 							setTimers(timers.filter(t => t.id !== time.id));
 						}}>
 							Remove Timer
@@ -181,6 +195,9 @@ const TimerContainer = ({ id, name, whenOpen, timers = [], setTimers, changeName
 
 					{visible ?
 						<div className='containerDiv'>
+							<div>
+								<button onClick={() => setPomodoroMode(!pomodoroMode)}>PomodoroMode {pomodoroMode ? 'on' : 'off'}</button>
+							</div>
 							<div>
 								Repetitions: {originalRepetitions}
 							</div>
@@ -262,7 +279,7 @@ const TimerContainer = ({ id, name, whenOpen, timers = [], setTimers, changeName
 				{visible ?
 					<div className='containerDiv'>
 						X{containerRepetition}
-						<button onClick={activateTimer}>Start/Stop</button>
+						<button onClick={activateTimer}>{isPlaying ? 'Stop' : 'Start'}</button>
 						{displayTimers}
 
 						{isPlaying ? null : <button onClick={() => { setEditing(!editing), setCurrentTimerIndex(-2), setLastActiveTimer(-2) }}>Edit</button>}

@@ -9,13 +9,15 @@ interface Props {
 	id: number,
 	time: number,
 	isActive: boolean,
-	onComplete: () => void, //Tells the TimerContainer when the timer has finished
+	lastActive: boolean,
+	onComplete: (repeat: boolean) => void, //Tells the TimerContainer when the timer has finished
 	name?: string,
 	repetitions: number,
-	resetCounter: number
+	resetCounter: number,
+	pomodoroMode: boolean,
 }
 
-const Timer = ({ id, time, isActive, onComplete, name = "", repetitions = 1, resetCounter }: Props) => {
+const Timer = ({ id, time, isActive, lastActive, onComplete, name = "", repetitions = 1, resetCounter, pomodoroMode }: Props) => {
 
 	//For drag-n-drop
 	const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id })
@@ -65,7 +67,12 @@ const Timer = ({ id, time, isActive, onComplete, name = "", repetitions = 1, res
 
 		if (remaining <= 0 && repeat > 1) {
 			setRepeat(repeat - 1)
+			if (pomodoroMode) {
+				onComplete(true)
+			}
 			setRemaining(originalTime)
+			stopAlarm()
+			playAlarm()
 		}
 
 		if (remaining <= 0 && repeat <= 1 && repeat > 0) {
@@ -73,7 +80,7 @@ const Timer = ({ id, time, isActive, onComplete, name = "", repetitions = 1, res
 			setDone(true)
 			stopAlarm()
 			playAlarm()
-			onComplete();
+			onComplete(false)
 			return;
 		}
 
@@ -91,27 +98,6 @@ const Timer = ({ id, time, isActive, onComplete, name = "", repetitions = 1, res
 		return () => clearInterval(interval);
 	}, [isActive, remaining]);
 
-	const timerStyleActive: CSSProperties = {
-		padding: '1rem',
-		borderRadius: '0.75rem',
-		boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
-		backgroundColor: 'white',
-		maxWidth: '250px',
-		margin: '1rem auto',
-		textAlign: 'center',
-	}
-
-	const timerStyleUnactive: CSSProperties = {
-		padding: '1rem',
-		borderRadius: '0.75rem',
-		boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
-		backgroundColor: 'red',
-		maxWidth: '250px',
-		margin: '1rem auto',
-		textAlign: 'center',
-	}
-
-	const timerStyle = done ? timerStyleUnactive : timerStyleActive;
 
 	const dragNDropStyle = {
 		transition,
@@ -121,7 +107,15 @@ const Timer = ({ id, time, isActive, onComplete, name = "", repetitions = 1, res
 	return (
 		<>
 			<div ref={setNodeRef} {...attributes} {...listeners} style={dragNDropStyle}>
-				<div style={timerStyle}>
+				<div style={{
+					padding: '1rem',
+					borderRadius: '0.75rem',
+					boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+					backgroundColor: done ? 'red' : lastActive ? 'yellow' : 'white',
+					maxWidth: '250px',
+					margin: '1rem auto',
+					textAlign: 'center',
+				}}>
 					<h2>{name}</h2>
 					<h2>
 						{`${minutes}: 

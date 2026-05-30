@@ -124,7 +124,6 @@ const TimerContainer = ({ id, name, whenOpen, timers = [], setTimers, changeName
 				index += 1
 			}
 		}
-		console.log(currentTimerIndex)
 	}
 
 	const displayTimers =
@@ -185,7 +184,7 @@ const TimerContainer = ({ id, name, whenOpen, timers = [], setTimers, changeName
 							<div>
 								Repetitions: {originalRepetitions}
 							</div>
-							<input type="number" placeholder='container repetitions' onChange={(e) => setOriginalRepetitions((Number(e.target.value)))} />
+							<input type="number" min="0" placeholder='container repetitions' onChange={(e) => setOriginalRepetitions((Number(e.target.value)))} />
 							<div>
 								<h4>Add optional name of timer</h4>
 								<input type="text" placeholder='optional name' onChange={(e) => setTimerName((e.target.value))} />
@@ -198,6 +197,7 @@ const TimerContainer = ({ id, name, whenOpen, timers = [], setTimers, changeName
 										<p>Minutes</p>
 										<input
 											type="number"
+											min="0"
 											value={minutesToAdd}
 											placeholder="minutes"
 											onChange={(e) => {
@@ -211,6 +211,7 @@ const TimerContainer = ({ id, name, whenOpen, timers = [], setTimers, changeName
 										<p>Seconds</p>
 										<input
 											type="number"
+											min="0"
 											value={secondsToAdd}
 											placeholder="seconds"
 											onChange={(e) => {
@@ -224,6 +225,7 @@ const TimerContainer = ({ id, name, whenOpen, timers = [], setTimers, changeName
 										<p>Reps</p>
 										<input
 											type="number"
+											min="0"
 											placeholder="repetitions"
 											onChange={(e) => {
 												const val = e.target.value;

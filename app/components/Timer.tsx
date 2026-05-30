@@ -11,10 +11,11 @@ interface Props {
 	isActive: boolean,
 	onComplete: () => void, //Tells the TimerContainer when the timer has finished
 	name?: string,
-	repetitions: number
+	repetitions: number,
+	resetCounter: number
 }
 
-const Timer = ({ id, time, isActive, onComplete, name = "", repetitions = 1 }: Props) => {
+const Timer = ({ id, time, isActive, onComplete, name = "", repetitions = 1, resetCounter }: Props) => {
 
 	//For drag-n-drop
 	const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id })
@@ -36,7 +37,7 @@ const Timer = ({ id, time, isActive, onComplete, name = "", repetitions = 1 }: P
 		setRemaining(time);
 		setRepeat(repetitions);
 		setDone(false);
-	}, [time, repetitions]);
+	}, [time, repetitions, resetCounter]);
 
 	useEffect(() => {
 		alarmRef.current = new Audio(alarmContext.alarmUrl);

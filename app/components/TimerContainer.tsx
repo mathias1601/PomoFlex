@@ -43,6 +43,7 @@ const TimerContainer = ({ id, name, whenOpen, timers = [], setTimers, changeName
 	//How many times the container should repeat
 	const [originalRepetitions, setOriginalRepetitions] = useState<number>(1);
 	const [containerRepetition, setContainerRepetition] = useState<number>(1);
+	const [resetCounter, setResetCounter] = useState<number>(0);
 
 	const addTimer = () => {
 		let timeToAdd = 60 * minutesToAdd + secondsToAdd
@@ -53,6 +54,8 @@ const TimerContainer = ({ id, name, whenOpen, timers = [], setTimers, changeName
 		]);
 	};
 
+
+	// Given to a Timer component so that we know whether a timer has finished or not
 	const timerComplete = () => {
 		setCurrentTimerIndex(lastActiveTimer + 1)
 		setLastActiveTimer(lastActiveTimer + 1)
@@ -77,6 +80,21 @@ const TimerContainer = ({ id, name, whenOpen, timers = [], setTimers, changeName
 			setCurrentTimerIndex(-2)
 			setLastActiveTimer(-2)
 		}
+	}
+
+	// Reset all timers
+	const resetTimer = () => {
+		setTimers(timers.map(t => ({
+			...t,
+			duration: t.originalDuration,
+			repetitions: t.originalRepetitions,
+			hasFinished: false,
+		})));
+		setCurrentTimerIndex(-2);
+		setLastActiveTimer(-2);
+		setIsPlaying(false);
+		setContainerRepetition(originalRepetitions);
+		setResetCounter(prev => prev + 1);
 	}
 
 	const activateTimer = () => {
@@ -120,6 +138,7 @@ const TimerContainer = ({ id, name, whenOpen, timers = [], setTimers, changeName
 						onComplete={timerComplete}
 						name={time.name}
 						repetitions={time.repetitions}
+						resetCounter={resetCounter}
 					/>
 					{isPlaying || !editing ? null :
 						<button onClick={() => {
@@ -245,6 +264,7 @@ const TimerContainer = ({ id, name, whenOpen, timers = [], setTimers, changeName
 						{displayTimers}
 
 						{isPlaying ? null : <button onClick={() => { setEditing(!editing), setCurrentTimerIndex(-2), setLastActiveTimer(-2) }}>Edit</button>}
+						{isPlaying ? null : <button onClick={resetTimer}>Reset timer</button>}
 					</div>
 					: null}
 				{isPlaying ? null :
